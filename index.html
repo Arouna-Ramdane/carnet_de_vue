@@ -20,13 +20,18 @@
 
   *{ box-sizing: border-box; }
 
+  html{ overflow-x: hidden; }
+
   body{
     margin:0;
     background: var(--bg);
     color: var(--text);
     font-family: 'Fraunces', serif;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
+
+  img{ max-width: 100%; }
 
   /* ---------- header ---------- */
   header{
@@ -44,20 +49,20 @@
   }
 
   h1{
-    font-size: clamp(2.4rem, 5vw, 3.6rem);
+    font-size: clamp(2.1rem, 6vw, 3.6rem);
     font-weight: 400;
     font-style: italic;
     margin: 0 0 0.5rem;
-    line-height: 1.05;
+    line-height: 1.08;
     max-width: 14ch;
   }
 
   header p{
     color: var(--muted);
     max-width: 46ch;
-    font-size: 1.05rem;
+    font-size: 1.02rem;
     line-height: 1.5;
-    margin: 0 0 2.5rem;
+    margin: 0 0 2.25rem;
   }
 
   /* ---------- filters ---------- */
@@ -79,6 +84,8 @@
     cursor: pointer;
     position: relative;
     transition: color 0.2s ease;
+    flex: 0 0 auto;
+    white-space: nowrap;
   }
 
   .filters button:hover{ color: var(--text); }
@@ -107,10 +114,6 @@
   .gallery{
     columns: 3 260px;
     column-gap: 1.1rem;
-  }
-
-  @media (max-width: 640px){
-    .gallery{ columns: 1 220px; }
   }
 
   figure{
@@ -180,7 +183,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 4vh 4vw;
+    padding: 4vh 4.5rem;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s ease;
@@ -194,7 +197,7 @@
 
   .lightbox img{
     max-width: 100%;
-    max-height: 82vh;
+    max-height: 78vh;
     box-shadow: 0 30px 60px rgba(0,0,0,0.5);
   }
 
@@ -205,6 +208,7 @@
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.8rem;
     color: var(--muted);
+    padding: 0 1rem;
   }
 
   .lightbox-caption strong{
@@ -230,13 +234,48 @@
     align-items: center;
     justify-content: center;
     transition: border-color 0.2s ease, color 0.2s ease;
+    flex-shrink: 0;
   }
 
   .lb-btn:hover{ border-color: var(--accent); color: var(--accent); }
 
-  .lb-close{ top: 2vh; right: 2vw; }
-  .lb-prev{ left: 2vw; top: 50%; transform: translateY(-50%); }
-  .lb-next{ right: 2vw; top: 50%; transform: translateY(-50%); }
+  .lb-close{ top: 2vh; right: 1rem; }
+  .lb-prev{ left: 0.75rem; top: 50%; transform: translateY(-50%); }
+  .lb-next{ right: 0.75rem; top: 50%; transform: translateY(-50%); }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 900px){
+    .gallery{ columns: 2 200px; }
+  }
+
+  @media (max-width: 640px){
+    header{ padding: 3rem 1.25rem 1.75rem; }
+    header p{ margin-bottom: 1.75rem; font-size: 0.95rem; }
+
+    .filters{
+      gap: 1.1rem;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      margin: 0 -1.25rem;
+      padding: 0 1.25rem 0.85rem;
+    }
+    .filters::-webkit-scrollbar{ display: none; }
+    .filters button{ padding-bottom: 0.6rem; }
+
+    main{ padding: 1.75rem 1.25rem 4rem; }
+    .gallery{ columns: 1 100%; column-gap: 0; }
+
+    .lightbox{ padding: 3vh 0.5rem; }
+    .lightbox img{ max-height: 68vh; }
+    .lb-btn{ width: 2.2rem; height: 2.2rem; font-size: 1rem; }
+    .lb-close{ top: 1rem; right: 0.75rem; }
+    .lb-prev{ left: 0.25rem; }
+    .lb-next{ right: 0.25rem; }
+    .lightbox-caption{ bottom: 1.5vh; font-size: 0.72rem; }
+    .lightbox-caption strong{ font-size: 1rem; }
+  }
 
   @media (prefers-reduced-motion: reduce){
     *{ animation: none !important; transition: none !important; }
@@ -255,7 +294,7 @@
     <button data-filter="portrait">Portrait</button>
     <button data-filter="sport">Sport</button>
     <button data-filter="voyage">Voyage</button>
-    
+    <button data-filter="autres">Autres</button>
   </nav>
 </header>
 
@@ -280,14 +319,14 @@
     { id: "portrais.jpg", cat: "portrait", title: "Regard de biais", w: 800, h: 1000 },
     { id: "portrais_2.jpg", cat: "portrait", title: "Lumière douce", w: 800, h: 900 },
     { id: "sortis.jpg", cat: "portrait", title: "Contre-jour", w: 800, h: 1100 },
-    { id: "sport_moi.jpg", cat: "sport", title: "preparation d'avant match", w: 900, h: 750 },
-    { id: "sport_tournois.jpg", cat: "sport", title: "team de champinnat universitaire", w: 900, h: 700 },
-    { id: "sport_avec_team.jpg", cat: "sport", title: "team petit poto", w: 900, h: 1000 },
-    { id: "sport_avec_tawab.jpg", cat: "sport", title: "avec mon bon petit", w: 900, h: 1000 },
-    { id: "calme.jpg", cat: "voyage", title: "quelque part a lomé", w: 900, h: 700 },
-    { id: "portrais_simple.jpg", cat: "voyage", title: "visite de la cascade de souroukou", w: 900, h: 1200 },
-    { id: "avec_mon_attache.jpg", cat: "voyage", title: "quelque part a paris", w: 900, h: 700 },
-    { id: "gala.jpg", cat: "voyage", title: "avec quelque amis au met gala", w: 900, h: 900 },
+    { id: "sport_moi.jpg", cat: "sport", title: "Préparation d'avant match", w: 900, h: 750 },
+    { id: "sport_tournois.jpg", cat: "sport", title: "Équipe du championnat universitaire", w: 900, h: 700 },
+    { id: "sport_avec_team.jpg", cat: "sport", title: "Team petit poto", w: 900, h: 1000 },
+    { id: "sport_avec_tawab.jpg", cat: "sport", title: "Avec mon bon petit", w: 900, h: 1000 },
+    { id: "calme.jpg", cat: "voyage", title: "Quelque part à Lomé", w: 900, h: 700 },
+    { id: "portrais_simple.jpg", cat: "voyage", title: "Visite de la cascade de Souroukou", w: 900, h: 1200 },
+    { id: "avec_mon_attache.jpg", cat: "voyage", title: "Quelque part à Paris", w: 900, h: 700 },
+    { id: "gala.jpg", cat: "voyage", title: "Avec quelques amis au Met Gala", w: 900, h: 900 },
     { id: "instant-voler.jpg", cat: "portrait", title: "Instant volé", w: 800, h: 1000 },
   ];
 
