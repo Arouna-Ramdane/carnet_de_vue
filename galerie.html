@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galerie — Prises de vue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #121110;
+    --surface: #1b1a18;
+    --surface-2: #221f1c;
+    --text: #f4efe6;
+    --muted: #9c9484;
+    --accent: #d98e4a;
+    --line: #33302b;
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Fraunces', serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- header ---------- */
+  header{
+    padding: 5rem 1.5rem 2.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .eyebrow{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+    margin: 0 0 0.75rem;
+  }
+
+  h1{
+    font-size: clamp(2.4rem, 5vw, 3.6rem);
+    font-weight: 400;
+    font-style: italic;
+    margin: 0 0 0.5rem;
+    line-height: 1.05;
+    max-width: 14ch;
+  }
+
+  header p{
+    color: var(--muted);
+    max-width: 46ch;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    margin: 0 0 2.5rem;
+  }
+
+  /* ---------- filters ---------- */
+  .filters{
+    display: flex;
+    gap: 1.75rem;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0;
+  }
+
+  .filters button{
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    padding: 0 0 0.85rem;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s ease;
+  }
+
+  .filters button:hover{ color: var(--text); }
+
+  .filters button::after{
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: -1px;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s ease;
+  }
+
+  .filters button.active{ color: var(--text); }
+  .filters button.active::after{ transform: scaleX(1); }
+
+  /* ---------- gallery ---------- */
+  main{
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 6rem;
+  }
+
+  .gallery{
+    columns: 3 260px;
+    column-gap: 1.1rem;
+  }
+
+  @media (max-width: 640px){
+    .gallery{ columns: 1 220px; }
+  }
+
+  figure{
+    margin: 0 0 1.1rem;
+    break-inside: avoid;
+    position: relative;
+    overflow: hidden;
+    background: var(--surface);
+    cursor: pointer;
+    opacity: 1;
+    transform: scale(1);
+    animation: enter 0.4s ease both;
+  }
+
+  @keyframes enter{
+    from{ opacity: 0; transform: translateY(8px); }
+    to{ opacity: 1; transform: translateY(0); }
+  }
+
+  figure.is-hidden{ display: none; }
+
+  figure img{
+    display: block;
+    width: 100%;
+    height: auto;
+    transition: transform 0.5s ease, filter 0.5s ease;
+  }
+
+  figure:hover img{
+    transform: scale(1.06);
+    filter: saturate(1.1);
+  }
+
+  figcaption{
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 0.9rem 1rem 0.8rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0));
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+
+  figure:hover figcaption{
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  figcaption .cat{
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--accent);
+    margin-bottom: 0.15rem;
+  }
+
+  figcaption .title{
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  /* ---------- lightbox ---------- */
+  .lightbox{
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 9, 8, 0.94);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4vh 4vw;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    z-index: 50;
+  }
+
+  .lightbox.open{
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .lightbox img{
+    max-width: 100%;
+    max-height: 82vh;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+  }
+
+  .lightbox-caption{
+    position: absolute;
+    left: 0; right: 0; bottom: 4vh;
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .lightbox-caption strong{
+    color: var(--text);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  .lb-btn{
+    position: absolute;
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--text);
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+
+  .lb-btn:hover{ border-color: var(--accent); color: var(--accent); }
+
+  .lb-close{ top: 2vh; right: 2vw; }
+  .lb-prev{ left: 2vw; top: 50%; transform: translateY(-50%); }
+  .lb-next{ right: 2vw; top: 50%; transform: translateY(-50%); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Galerie</p>
+  <h1>Un carnet de prises de vue</h1>
+  <p>Portraits, sport, voyages et quelques images à part — cliquez sur une photo pour l'ouvrir en plein écran.</p>
+
+  <nav class="filters" id="filters">
+    <button data-filter="all" class="active">Tous</button>
+    <button data-filter="portrait">Portrait</button>
+    <button data-filter="sport">Sport</button>
+    <button data-filter="voyage">Voyage</button>
+    
+  </nav>
+</header>
+
+<main>
+  <div class="gallery" id="gallery"></div>
+</main>
+
+<div class="lightbox" id="lightbox">
+  <button class="lb-btn lb-close" id="lbClose" aria-label="Fermer">×</button>
+  <button class="lb-btn lb-prev" id="lbPrev" aria-label="Précédente">‹</button>
+  <img id="lbImg" src="" alt="">
+  <button class="lb-btn lb-next" id="lbNext" aria-label="Suivante">›</button>
+  <div class="lightbox-caption">
+    <strong id="lbTitle"></strong>
+    <span id="lbCat"></span>
+  </div>
+</div>
+
+<script>
+  // Remplacez src par vos propres photos : ce tableau est la seule chose à modifier.
+  const photos = [
+    { id: "portrais.jpg", cat: "portrait", title: "Regard de biais", w: 800, h: 1000 },
+    { id: "portrais_2.jpg", cat: "portrait", title: "Lumière douce", w: 800, h: 900 },
+    { id: "sortis.jpg", cat: "portrait", title: "Contre-jour", w: 800, h: 1100 },
+    { id: "sport_moi.jpg", cat: "sport", title: "preparation d'avant match", w: 900, h: 750 },
+    { id: "sport_tournois.jpg", cat: "sport", title: "team de champinnat universitaire", w: 900, h: 700 },
+    { id: "sport_avec_team.jpg", cat: "sport", title: "team petit poto", w: 900, h: 1000 },
+    { id: "sport_avec_tawab.jpg", cat: "sport", title: "avec mon bon petit", w: 900, h: 1000 },
+    { id: "calme.jpg", cat: "voyage", title: "quelque part a lomé", w: 900, h: 700 },
+    { id: "portrais_simple.jpg", cat: "voyage", title: "visite de la cascade de souroukou", w: 900, h: 1200 },
+    { id: "avec_mon_attache.jpg", cat: "voyage", title: "quelque part a paris", w: 900, h: 700 },
+    { id: "gala.jpg", cat: "voyage", title: "avec quelque amis au met gala", w: 900, h: 900 },
+    { id: "instant-voler.jpg", cat: "portrait", title: "Instant volé", w: 800, h: 1000 },
+  ];
+
+  const gallery = document.getElementById('gallery');
+  const filters = document.getElementById('filters');
+
+  function render(){
+    gallery.innerHTML = photos.map((p, i) => `
+      <figure data-cat="${p.cat}" data-index="${i}">
+        <img src="${p.id}" alt="${p.title}" loading="lazy">
+        <figcaption>
+          <span class="cat">${labelFor(p.cat)}</span>
+          <span class="title">${p.title}</span>
+        </figcaption>
+      </figure>
+    `).join('');
+
+    gallery.querySelectorAll('figure').forEach(fig => {
+      fig.addEventListener('click', () => openLightbox(Number(fig.dataset.index)));
+    });
+  }
+
+  function labelFor(cat){
+    return { portrait: "Portrait", sport: "Sport", voyage: "Voyage", autres: "Autres" }[cat] || cat;
+  }
+
+  // ---------- filtres ----------
+  filters.addEventListener('click', e => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    filters.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filter = btn.dataset.filter;
+
+    gallery.querySelectorAll('figure').forEach(fig => {
+      const match = filter === 'all' || fig.dataset.cat === filter;
+      fig.classList.toggle('is-hidden', !match);
+    });
+  });
+
+  // ---------- lightbox ----------
+  const lightbox = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lbImg');
+  const lbTitle = document.getElementById('lbTitle');
+  const lbCat = document.getElementById('lbCat');
+  let currentIndex = 0;
+
+  function visibleIndexes(){
+    return [...gallery.querySelectorAll('figure:not(.is-hidden)')].map(f => Number(f.dataset.index));
+  }
+
+  function openLightbox(index){
+    currentIndex = index;
+    updateLightbox();
+    lightbox.classList.add('open');
+  }
+
+  function updateLightbox(){
+    const p = photos[currentIndex];
+    lbImg.src = `${p.id}`;
+    lbImg.alt = p.title;
+    lbTitle.textContent = p.title;
+    lbCat.textContent = labelFor(p.cat);
+  }
+
+  function closeLightbox(){
+    lightbox.classList.remove('open');
+  }
+
+  function step(dir){
+    const idxs = visibleIndexes();
+    const pos = idxs.indexOf(currentIndex);
+    const next = (pos + dir + idxs.length) % idxs.length;
+    currentIndex = idxs[next];
+    updateLightbox();
+  }
+
+  document.getElementById('lbClose').addEventListener('click', closeLightbox);
+  document.getElementById('lbNext').addEventListener('click', () => step(1));
+  document.getElementById('lbPrev').addEventListener('click', () => step(-1));
+
+  lightbox.addEventListener('click', e => {
+    if (e.target === lightbox) closeLightbox();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (!lightbox.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowRight') step(1);
+    if (e.key === 'ArrowLeft') step(-1);
+  });
+
+  render();
+</script>
+
+</body>
+</html>
